@@ -4,10 +4,10 @@ Futtatáshoz, szükséges még az adatbázis letöltése is a shared mappába.
 A tanítások Paperspace oldalán lettek megvalósítva 16GB-os távoli elérésű videokártyákokal.
 
 ## Tanítás lépései
--thesis.ipynb futtatása
--fájlon belűl a Configurator osztályal tudunk kísérleteket inicializálni pl.: Architektúra, epochszám, batch méret, stb..
--Ha tanítást logolni szeretnénk megkell adni egy Weights And Biases kulcsot a felhasználónak.
--Vizualizálások, előfeldolgozás, augmentáció, tanítás újra inditása automatikusan történik
+  - thesis.ipynb futtatása
+  - fájlon belűl a Configurator osztályal tudunk kísérleteket inicializálni pl.: Architektúra, epochszám, batch méret, stb..
+  - Ha tanítást logolni szeretnénk megkell adni egy Weights And Biases kulcsot a felhasználónak.
+  - Vizualizálások, előfeldolgozás, augmentáció, tanítás újra inditása automatikusan történik
 
 ## Eredmények
 
