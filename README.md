@@ -17,7 +17,7 @@ azonos vagy jobb eredményt volt képes elérni.
 ## Felhasznált eszközök
 Első sorban a tanítások Paperspace által nyújtott távolíelérésű gépeken voltak megvalósítva, csak a szignifikáns kódrészletek kerültek publikálásra ebben a repoban.
 További felhasznált könyvtárak és keretrendszerek:
--Pytorch
--MONAI
--Matplotlib
--Weights And Biases
+  - Pytorch
+  - MONAI
+  - Matplotlib
+  - Weights And Biases
