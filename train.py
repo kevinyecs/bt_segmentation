@@ -45,6 +45,7 @@ from utils.losses import DiceFocalLoss, CompoundBraTSLoss
 from utils.metrics import BraTSMetrics
 from utils.postprocess import postprocess_brats
 from utils.peft import apply_lora, freeze_encoder, apply_adapters, print_trainable_params
+from utils.vpt import apply_vpt_to_swinunetr
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -80,6 +81,9 @@ class BraTSSegModule(L.LightningModule):
             print_trainable_params(self.model)
         elif peft == "adapters":
             apply_adapters(self.model, bottleneck_dim=16)
+            print_trainable_params(self.model)
+        elif peft == "vpt":
+            apply_vpt_to_swinunetr(self.model, num_prompts=10)
             print_trainable_params(self.model)
 
         # Loss
@@ -203,8 +207,12 @@ def main():
     parser.add_argument("--val_interval", type=int, default=3)
 
     # PEFT options
-    parser.add_argument("--peft", type=str, default=None, choices=["lora", "freeze_encoder", "adapters"])
+    parser.add_argument("--peft", type=str, default=None, choices=["lora", "freeze_encoder", "adapters", "vpt"])
     parser.add_argument("--lora_rank", type=int, default=4)
+
+    # Cross-validation
+    parser.add_argument("--kfold", type=int, default=None, help="Run K-fold cross-validation (e.g., 5)")
+    parser.add_argument("--fold_subset", type=int, nargs="+", default=None, help="Train only these fold indices")
 
     # Data
     parser.add_argument("--data_dir", type=str, default=None, help="Override DATA_DIR env var")
@@ -238,6 +246,16 @@ def main():
         grad_acc=args.grad_acc,
         val_interval=args.val_interval,
     )
+
+    # K-fold cross-validation mode
+    if args.kfold is not None:
+        from utils.cross_val import train_kfold
+        if args.wandb_key:
+            import wandb
+            wandb.login(key=args.wandb_key)
+        checkpoints = train_kfold(cfg, n_folds=args.kfold, fold_subset=args.fold_subset)
+        logger.info("K-fold training complete. Checkpoints: %s", checkpoints)
+        return
 
     # W&B
     if args.wandb_key:
