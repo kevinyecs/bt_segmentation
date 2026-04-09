@@ -3,7 +3,10 @@ torch>=2.0.0
 torchvision>=0.15.0
 
 # Medical imaging
-monai>=1.3.0
+monai[fire,nibabel]>=1.3.0
+
+# Training framework
+lightning>=2.0.0
 
 # Training utilities
 ranger-adabelief>=0.12.1
@@ -12,10 +15,19 @@ wandb>=0.16.0
 # Vision model components
 timm>=0.9.0
 
+# HuggingFace Hub (model downloading)
+huggingface-hub>=0.20.0
+
 # Visualization
 matplotlib>=3.7.0
 numpy>=1.24.0
 
+# Metrics (Hausdorff distance, connected components)
+scipy>=1.10.0
+
 # Notebook
 ipykernel>=6.0.0
 ipywidgets>=8.0.0
+
+# CLI
+rich>=13.0.0
