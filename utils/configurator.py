@@ -1,37 +1,50 @@
+import os
 import torch
-import torch.nn as nn
-import datetime.datetime
+from datetime import datetime
+from dataclasses import dataclass, field
 
-#Config class for hyper params and model construction
+cur_time = datetime.now().strftime('%Y%m%d_%H%M%S')
 
-cur_time = datetime.now().strftime('%Y%m%d_%T').replace(":", "")
 
-class Config(nn.Module):
-    def __init__(self , max_epochs=42, batch_size=1, lr=1e-4, \
-                scheduler=None, wd=0.0, backbone=None, optim="ranger", arch = "SegResNet", loss="dice", swa=False, grad_acc=4, task='brain', val_interval=3,momentum=0.9, resume=False):
-        self.exp_name       = cur_time + "_"+ str(arch)+ "_"+ str(max_epochs) + "_"+ str(batch_size) + \
-                            "_"+ str(lr) + "_"+ str(wd) + "_"+ str(backbone) + "_"+ str(optim)  + "_"+ str(loss)+ "_TASK: " + str(task) +" _RESUME:"+str(resume)
-        self.loss = loss
-        self.optim          = optim
-        self.max_epochs     = max_epochs
-        self.batch_size     = batch_size
-        self.lr             = lr
-        self.scheduler      = scheduler
-        self.wd             = wd
-        self.backbone       = backbone
-        self.device         = "cuda" if torch.cuda.is_available() else "cpu"
-        self.seed           = 42
-        self.data_dir       = "/notebooks/shared/data"
-        self.min_lr         = 1e-6
-        self.T_max          = int(30000/batch_size* max_epochs)+50
-        self.T_0            = 25
-        self.n_accumulate   = max(1,64/batch_size)
-        self.n_fold         = 5
-        self.num_classes    = 3
-        self.arch           = arch
-        self.swa            =swa
-        self.grad_acc       =grad_acc
-        self.task           = 'Task01_BrainTumour'
-        self.val_interval   = val_interval
-        self.momentum       = momentum
-        self.resume         = resume
+@dataclass
+class Config:
+    arch: str = "SegResNet"
+    max_epochs: int = 42
+    batch_size: int = 1
+    lr: float = 1e-4
+    scheduler: str = None
+    wd: float = 0.0
+    backbone: str = None
+    optim: str = "ranger"
+    loss: str = "dice"
+    swa: bool = False
+    grad_acc: int = 4
+    task: str = "Task01_BrainTumour"
+    val_interval: int = 3
+    momentum: float = 0.9
+    resume: bool = False
+
+    # Derived / computed fields
+    device: str = field(init=False)
+    data_dir: str = field(init=False)
+    exp_name: str = field(init=False)
+    seed: int = field(default=42, init=False)
+    min_lr: float = field(default=1e-6, init=False)
+    num_classes: int = field(default=3, init=False)
+    n_fold: int = field(default=5, init=False)
+
+    def __post_init__(self):
+        self.device = "cuda" if torch.cuda.is_available() else "cpu"
+        self.data_dir = os.environ.get("DATA_DIR", "/notebooks/shared/data")
+        self.exp_name = (
+            f"{cur_time}_{self.arch}_{self.max_epochs}_{self.batch_size}"
+            f"_{self.lr}_{self.wd}_{self.backbone}_{self.optim}"
+            f"_{self.loss}_TASK:{self.task}_RESUME:{self.resume}"
+        )
+        self.T_max = int(30000 / self.batch_size * self.max_epochs) + 50
+        self.T_0 = 25
+        self.n_accumulate = max(1, 64 / self.batch_size)
+        self.max_lr = self.lr * 10
+        self.step_size_up = 500
+        self.step_size_down = 500
+        self.n_iters = self.T_max

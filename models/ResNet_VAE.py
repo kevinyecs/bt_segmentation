@@ -379,5 +379,5 @@ class ModelEnsemble(nn.Module):
         self.modelB.fc = nn.Identity()
         
         # Create new segmentation map
-        self.seg_map = nn.BlueBlock(in_channels=32, out_channels=classes)
+        self.seg_map = BlueBlock(in_channels=32, out_channels=classes)
 
